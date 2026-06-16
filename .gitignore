@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Environment
+.env
+
+# Data (raw source files — too large for git)
+data/raw/
+
+# OS
+.DS_Store
+Thumbs.db
