@@ -546,14 +546,42 @@ with tab3:
         st.divider()
         st.subheader("Results")
 
-        # Bar chart of predicted productivity per shift
-        chart_df = batch_df.copy()
-        chart_df["Shift"] = [f"Shift {i+1}" for i in range(len(chart_df))]
-        chart_df["Color"] = chart_df["Status"].map({"✅ On Target": "#22c55e", "❌ At Risk": "#ef4444", "⚠️ Error": "#f59e0b"})
-        fig_batch = go.Figure(go.Bar(x=chart_df["Shift"], y=(chart_df["Predicted_Productivity"] * 100).round(1), marker_color=chart_df["Color"], text=(chart_df["Predicted_Productivity"] * 100).round(1).astype(str) + "%", textposition="outside"))
-        fig_batch.add_hline(y=threshold * 100, line_dash="dash", line_color="#ef4444", annotation_text="Threshold")
-        fig_batch.update_layout(yaxis_title="Predicted Productivity (%)", yaxis_range=[0, 110], paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", yaxis={"gridcolor": "#E2E8F0"}, xaxis={"gridcolor": "rgba(0,0,0,0)"}, font={"color": "#ffffff"})
-        st.plotly_chart(fig_batch, use_container_width=True)
+        # Gauge grid — 3 per row
+        cols_per_row = 3
+        rows = [batch_df.iloc[i:i+cols_per_row] for i in range(0, len(batch_df), cols_per_row)]
+        for row_df in rows:
+            cols = st.columns(cols_per_row)
+            for col_idx, (_, shift_row) in enumerate(row_df.iterrows()):
+                pred = shift_row.get('Predicted_Productivity')
+                status = shift_row.get('Status', '')
+                shift_label = f"Shift {_ + 1}"
+                if pred is not None:
+                    gauge_color = "#22c55e" if pred >= threshold else "#ef4444"
+                    fig_g = go.Figure(go.Indicator(
+                        mode="gauge+number",
+                        value=round(pred * 100, 1),
+                        number={'suffix': '%', 'font': {'size': 28, 'color': '#ffffff'}},
+                        title={'text': f"{shift_label}<br><span style='font-size:12px'>{status}</span>", 'font': {'size': 13, 'color': '#ffffff'}},
+                        gauge={
+                            'axis': {'range': [0, 100], 'tickcolor': '#ffffff', 'tickfont': {'color': '#ffffff'}},
+                            'bar': {'color': gauge_color, 'thickness': 0.25},
+                            'steps': [
+                                {'range': [0, threshold * 100 * 0.85], 'color': '#FEE2E2'},
+                                {'range': [threshold * 100 * 0.85, threshold * 100], 'color': '#FEF9C3'},
+                                {'range': [threshold * 100, 100], 'color': '#DCFCE7'},
+                            ],
+                            'threshold': {'line': {'color': '#EF4444', 'width': 3}, 'thickness': 0.75, 'value': threshold * 100}
+                        }
+                    ))
+                    fig_g.update_layout(
+                        height=220,
+                        margin=dict(t=60, b=10, l=10, r=10),
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font={'color': '#ffffff'}
+                    )
+                    cols[col_idx].plotly_chart(fig_g, use_container_width=True)
+                else:
+                    cols[col_idx].warning(f"{shift_label}: Error")
 
         # Highlight at-risk rows
         def highlight_risk(row):
