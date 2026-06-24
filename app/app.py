@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 # ── Page config ──────────────────────────────────────────────
 st.set_page_config(
     page_title="Productivity Dashboard",
-    page_icon="🏭",
+    page_icon="",
     layout="wide"
 )
 
@@ -164,11 +164,11 @@ def render_result(pred, lower, upper, raw, threshold,
     total_w = w_model + w_overtime + w_incentive or 1
 
     if pred >= threshold:
-        status, colour = "✅ On Target",   "normal"
+        status, colour = "On Target",   "normal"
     elif pred >= threshold * 0.85:
-        status, colour = "⚠️ Near Target", "off"
+        status, colour = " Near Target", "off"
     else:
-        status, colour = "❌ At Risk",      "inverse"
+        status, colour = "At Risk",      "inverse"
 
     comp = composite_score(pred, raw['over_time'], raw['incentive'],
                            w_model, w_overtime, w_incentive)
@@ -188,7 +188,7 @@ def render_result(pred, lower, upper, raw, threshold,
     st.divider()
 
     # ── Composite score (4D) ─────────────────────────────────
-    with st.expander("⚖️ Composite Manager Score", expanded=True):
+    with st.expander(" Composite Manager Score", expanded=True):
         cs_col, info_col = st.columns([1, 2])
         cs_col.metric("Composite Score", f"{comp:.1%}")
         info_col.caption(
@@ -200,7 +200,7 @@ def render_result(pred, lower, upper, raw, threshold,
         )
 
     # ── ROI card (4F) ────────────────────────────────────────
-    with st.expander("💰 Financial Impact Estimate", expanded=True):
+    with st.expander("Financial Impact Estimate", expanded=True):
         if gap > 0:
             labour_loss = gap * raw['no_of_workers'] * cost_per_idle_hour
             units_lost  = gap * raw['no_of_workers'] * value_per_unit * 8
@@ -217,7 +217,7 @@ def render_result(pred, lower, upper, raw, threshold,
             st.success("On or above target — no projected financial loss for this shift.")
 
     # ── Why breakdown (4B) ───────────────────────────────────
-    with st.expander("🔍 Why This Score? — Feature Importance Breakdown",
+    with st.expander("Why This Score? — Feature Importance Breakdown",
                      expanded=False):
         st.caption(
             "Global feature importance from the trained Random Forest "
@@ -293,11 +293,11 @@ def input_panel(key_suffix=""):
 # SIDEBAR
 # ════════════════════════════════════════════════════════════
 with st.sidebar:
-    st.title("🏭 Dashboard Controls")
+    st.title("Dashboard Controls")
     st.divider()
 
     # 4C — Dynamic threshold
-    st.subheader("🎯 Evaluation Threshold")
+    st.subheader("Evaluation Threshold")
     threshold = st.slider(
         "Minimum Acceptable Productivity",
         min_value=0.50, max_value=0.90, value=0.70, step=0.01,
@@ -307,7 +307,7 @@ with st.sidebar:
     st.divider()
 
     # 4D — Composite weights
-    st.subheader("⚖️ Composite Score Weights")
+    st.subheader("Composite Score Weights")
     st.caption("Auto-normalized to 100%.")
     w_model     = st.slider("Model Prediction",       0, 100, 60)
     w_overtime  = st.slider("Overtime Minimization",  0, 100, 25)
@@ -324,7 +324,7 @@ with st.sidebar:
     st.divider()
 
     # 4F — ROI constants
-    st.subheader("💰 ROI Constants")
+    st.subheader("ROI Constants")
     cost_per_idle_hour = st.number_input(
         "Cost per Worker/Hour ($)", min_value=1, max_value=500, value=25
     )
@@ -337,26 +337,75 @@ with st.sidebar:
         f"R² = 0.52 on held-out test set_"
     )
 
+    st.divider()
+    with st.expander("About This Tool"):
+        st.markdown("""
+**Worker Productivity Dashboard**
+Built for CSC-492 Senior Design (Summer 2026)
+*Brent Uyguangco & Pariket Koirala*
+California State University, Dominguez Hills
+
+**Purpose:** A decision-support tool for garment factory supervisors to predict shift productivity before work begins.
+
+**Model:** Random Forest (200 trees) trained on 1,197 real-world shift records. R² = 0.52.
+
+** Ethical Guardrails:**
+- **Team-level only** — operates on shift/team aggregates, not individual worker surveillance
+-  **Decision-support, not decision-maker** — a human supervisor always makes the final call
+- **Manager-adjustable thresholds** — context matters; rigid algorithms don't account for human factors
+- **Model transparency** — R² score and confidence band are displayed so users know the model's limitations
+
+** Acknowledged Limitations:**
+- R² of 0.52 means ~48% of productivity variance is unexplained
+- Dataset is from a single factory and may not generalize to all cultural contexts
+- Scores must never be used for hiring, firing, or disciplinary actions
+        """)
+
+    with st.expander("Data Source"):
+        st.markdown("""
+**Dataset:** Productivity Prediction of Garment Employees
+
+**Source:** Kaggle
+[View Dataset](https://www.kaggle.com/datasets/ishadss/productivity-prediction-of-garment-employees)
+
+**Original Authors:** Imran et al. (2021)
+
+The dataset contains 1,197 real-world factory shift records collected manually from garment factories and validated by industry experts. It includes 15 features such as overtime, team size, incentives, idle time, and work in progress.
+        """)
+
+    with st.expander("Privacy Policy"):
+        st.markdown("""
+**This tool is built strictly for academic purposes.**
+
+- This dashboard was developed as a senior capstone project (CSC-492) at California State University, Dominguez Hills
+- No real employee data is collected, stored, or transmitted
+- Any data entered into this tool is processed locally and is not saved
+- The dataset used for training is publicly available on Kaggle and contains no personally identifiable information
+- This tool is not intended for commercial use or deployment in real workforce management systems
+
+*For questions, contact the project authors.*
+        """)
+
 # ════════════════════════════════════════════════════════════
 # MAIN
 # ════════════════════════════════════════════════════════════
-st.title("🏭 Worker Productivity Dashboard")
+st.title("Worker Productivity Dashboard")
 st.caption(
     "Predict shift productivity for garment factory teams. "
     "Adjust threshold and weights in the sidebar."
 )
 
 tab1, tab2, tab3 = st.tabs([
-    "🏭 Single Shift Evaluation",
-    "🔄 What-If Simulator",
-    "📋 Batch Shift Analysis"
+    "Single Shift Evaluation",
+    "What-If Simulator",
+    "Batch Shift Analysis"
 ])
 
 # ════════════════════════════════════════════════════════════
 # TAB 1 — Single Shift Evaluation (4A 4B 4C 4D 4F 4I 4L)
 # ════════════════════════════════════════════════════════════
 with tab1:
-    st.subheader("📋 Shift Parameters")
+    st.subheader(" Shift Parameters")
     raw = input_panel(key_suffix="_t1")
 
     st.divider()
@@ -366,7 +415,7 @@ with tab1:
         pred, std, lower, upper = predict_with_confidence(input_df)
 
         st.divider()
-        st.subheader("📊 Prediction Results")
+        st.subheader("Prediction Results")
         render_result(
             pred, lower, upper, raw, threshold,
             w_model, w_overtime, w_incentive,
@@ -375,7 +424,7 @@ with tab1:
         )
     else:
         st.info(
-            "👆 Set the shift parameters above and click "
+            "Set the shift parameters above and click "
             "**Evaluate Productivity** to get a prediction."
         )
 
@@ -383,7 +432,7 @@ with tab1:
 # TAB 2 — What-If Simulator (4G)
 # ════════════════════════════════════════════════════════════
 with tab2:
-    st.subheader("🔄 What-If Simulator")
+    st.subheader("What-If Simulator")
     st.caption(
         "Compare two shift configurations side by side. "
         "Predictions update live as you adjust sliders."
@@ -400,7 +449,7 @@ with tab2:
         raw_b = input_panel(key_suffix="_b")
 
     st.divider()
-    st.subheader("📊 Side-by-Side Comparison")
+    st.subheader(" Side-by-Side Comparison")
 
     df_a = build_feature_vector(raw_a)
     df_b = build_feature_vector(raw_b)
@@ -436,7 +485,7 @@ with tab2:
     )
 
     # Input diff table
-    with st.expander("🔍 Input Differences (A vs B)", expanded=False):
+    with st.expander(" Input Differences (A vs B)", expanded=False):
         NUM_COLS_DIFF = [
             'targeted_productivity','over_time','incentive',
             'idle_time','idle_men','no_of_style_change',
@@ -459,7 +508,7 @@ with tab2:
 # TAB 3 — Batch Shift Analysis (4E)
 # ════════════════════════════════════════════════════════════
 with tab3:
-    st.subheader("📋 Batch Shift Analysis")
+    st.subheader("Batch Shift Analysis")
     st.caption(
         "Upload a CSV of shift schedules to predict productivity "
         "for an entire roster at once."
@@ -474,7 +523,7 @@ with tab3:
     }])
     template_csv = template_df.to_csv(index=False).encode('utf-8')
     st.download_button(
-        "⬇️ Download CSV Template",
+        " Download CSV Template",
         data=template_csv,
         file_name="shift_template.csv",
         mime="text/csv",
@@ -500,7 +549,7 @@ with tab3:
                         if c not in batch_df.columns]
         if missing_cols:
             st.error(
-                f"❌ Missing required columns: **{', '.join(missing_cols)}**\n\n"
+                f" Missing required columns: **{', '.join(missing_cols)}**\n\n"
                 "Download the template above to check the expected format."
             )
             st.stop()
@@ -521,25 +570,25 @@ with tab3:
 
         batch_df['Predicted_Productivity'] = preds
         batch_df['Status'] = batch_df['Predicted_Productivity'].apply(
-            lambda p: "✅ On Target" if p is not None and p >= threshold
-            else ("❌ At Risk" if p is not None else "⚠️ Error")
+            lambda p: "On Target" if p is not None and p >= threshold
+            else ("At Risk" if p is not None else "Error")
         )
 
         # Summary
         n_total   = len(batch_df)
-        n_atrisk  = (batch_df['Status'] == "❌ At Risk").sum()
-        n_ontgt   = (batch_df['Status'] == "✅ On Target").sum()
-        n_err     = (batch_df['Status'] == "⚠️ Error").sum()
+        n_atrisk  = (batch_df['Status'] == "At Risk").sum()
+        n_ontgt   = (batch_df['Status'] == "On Target").sum()
+        n_err     = (batch_df['Status'] == "Error").sum()
 
         s1, s2, s3 = st.columns(3)
         s1.metric("Total Shifts",  n_total)
-        s2.metric("✅ On Target",   n_ontgt)
-        s3.metric("❌ At Risk",     n_atrisk,
+        s2.metric("On Target",   n_ontgt)
+        s3.metric("At Risk",     n_atrisk,
                   delta=f"{n_atrisk/n_total:.0%} of shifts",
                   delta_color="inverse" if n_atrisk > 0 else "normal")
 
         if errors:
-            with st.expander(f"⚠️ {len(errors)} row(s) had errors"):
+            with st.expander(f" {len(errors)} row(s) had errors"):
                 for e in errors:
                     st.caption(e)
 
@@ -585,9 +634,9 @@ with tab3:
 
         # Highlight at-risk rows
         def highlight_risk(row):
-            if row.get('Status') == "❌ At Risk":
+            if row.get('Status') == "At Risk":
                 return ["background-color: #FEE2E2; color: #000000"] * len(row)
-            elif row.get('Status') == "✅ On Target":
+            elif row.get('Status') == "On Target":
                 return ["background-color: #DCFCE7; color: #000000"] * len(row)
             return [''] * len(row)
 
@@ -600,7 +649,7 @@ with tab3:
         # Download results
         result_csv = batch_df[display_cols].to_csv(index=False).encode('utf-8')
         st.download_button(
-            "⬇️ Download Results CSV",
+            "Download Results CSV",
             data=result_csv,
             file_name="shift_predictions.csv",
             mime="text/csv"
