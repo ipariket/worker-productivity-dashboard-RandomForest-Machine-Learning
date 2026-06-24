@@ -546,6 +546,15 @@ with tab3:
         st.divider()
         st.subheader("Results")
 
+        # Bar chart of predicted productivity per shift
+        chart_df = batch_df.copy()
+        chart_df["Shift"] = [f"Shift {i+1}" for i in range(len(chart_df))]
+        chart_df["Color"] = chart_df["Status"].map({"✅ On Target": "#22c55e", "❌ At Risk": "#ef4444", "⚠️ Error": "#f59e0b"})
+        fig_batch = go.Figure(go.Bar(x=chart_df["Shift"], y=(chart_df["Predicted_Productivity"] * 100).round(1), marker_color=chart_df["Color"], text=(chart_df["Predicted_Productivity"] * 100).round(1).astype(str) + "%", textposition="outside"))
+        fig_batch.add_hline(y=threshold * 100, line_dash="dash", line_color="#ef4444", annotation_text="Threshold")
+        fig_batch.update_layout(yaxis_title="Predicted Productivity (%)", yaxis_range=[0, 110], paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", yaxis={"gridcolor": "#E2E8F0"}, xaxis={"gridcolor": "rgba(0,0,0,0)"}, font={"color": "#ffffff"})
+        st.plotly_chart(fig_batch, use_container_width=True)
+
         # Highlight at-risk rows
         def highlight_risk(row):
             if row.get('Status') == "❌ At Risk":
