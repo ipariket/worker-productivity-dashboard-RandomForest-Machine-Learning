@@ -632,6 +632,75 @@ with tab3:
                 else:
                     cols[col_idx].warning(f"{shift_label}: Error")
 
+        # Per-shift expandable details
+        st.divider()
+        st.subheader("Shift Details")
+        for idx, (_, shift_row) in enumerate(batch_df.iterrows()):
+            pred = shift_row.get('Predicted_Productivity')
+            status = shift_row.get('Status', '')
+            shift_label = f"Shift {idx + 1}"
+            if pred is None:
+                continue
+            with st.expander(f"{shift_label} — {round(pred*100,1)}% — {status}"):
+                d1, d2 = st.columns(2)
+
+                # Why This Score
+                with d1:
+                    st.markdown("**Why This Score?**")
+                    st.caption("Global feature importance from the trained Random Forest.")
+                    fig_imp = go.Figure(go.Bar(
+                        x=importances[:10],
+                        y=feature_cols[:10],
+                        orientation='h',
+                        marker_color='#2196F3',
+                        marker_line_width=0
+                    ))
+                    fig_imp.update_layout(
+                        height=250,
+                        margin=dict(t=10, b=10, l=10, r=10),
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        xaxis={'gridcolor': '#E2E8F0'},
+                        yaxis={'gridcolor': 'rgba(0,0,0,0)'},
+                        font={'color': '#ffffff', 'size': 10}
+                    )
+                    st.plotly_chart(fig_imp, use_container_width=True, key=f"imp_{idx}")
+
+                # What-If
+                with d2:
+                    st.markdown("**What-If Scenario**")
+                    st.caption("Adjust incentive and overtime to see how the prediction changes.")
+                    wi_incentive = st.slider(
+                        f"Incentive (BDT) — Shift {idx+1}",
+                        0, 200,
+                        int(shift_row.get('incentive', 0)),
+                        key=f"wi_inc_{idx}"
+                    )
+                    wi_overtime = st.slider(
+                        f"Overtime (min) — Shift {idx+1}",
+                        0, 14880,
+                        int(shift_row.get('over_time', 0)),
+                        key=f"wi_ot_{idx}"
+                    )
+                    wi_row = {col: shift_row[col] for col in REQUIRED_BATCH_COLS}
+                    wi_row['incentive'] = wi_incentive
+                    wi_row['over_time'] = wi_overtime
+                    try:
+                        wi_fv = build_feature_vector(wi_row)
+                        wi_pred = float(np.clip(model.predict(wi_fv)[0], 0, 1))
+                        wi_delta = wi_pred - pred
+                        wi_color = "#22c55e" if wi_pred >= threshold else "#ef4444"
+                        st.metric(
+                            "Adjusted Prediction",
+                            f"{wi_pred:.1%}",
+                            delta=f"{wi_delta:+.1%} vs original",
+                            delta_color="normal" if wi_delta >= 0 else "inverse"
+                        )
+                        wi_status = "On Target" if wi_pred >= threshold else "At Risk"
+                        st.markdown(f"**Status:** {wi_status}")
+                    except Exception as e:
+                        st.warning(f"Could not compute: {e}")
+
         # Highlight at-risk rows
         def highlight_risk(row):
             if row.get('Status') == "At Risk":
