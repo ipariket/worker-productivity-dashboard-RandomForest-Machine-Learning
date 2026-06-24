@@ -549,9 +549,9 @@ with tab3:
         # Highlight at-risk rows
         def highlight_risk(row):
             if row.get('Status') == "❌ At Risk":
-                return ['background-color: #FEE2E2'] * len(row)
+                return ["background-color: #FEE2E2; color: #000000"] * len(row)
             elif row.get('Status') == "✅ On Target":
-                return ['background-color: #DCFCE7'] * len(row)
+                return ["background-color: #DCFCE7; color: #000000"] * len(row)
             return [''] * len(row)
 
         display_cols = REQUIRED_BATCH_COLS + ['Predicted_Productivity','Status']
