@@ -31,125 +31,44 @@ def login_page():
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-    .stApp { background: #050d1a; }
+    .stApp { background: #000000; }
 
-    /* Grid */
-    .grid-bg {
-        position: fixed; top: 0; left: 0;
+    /* Canvas for animated supply chain */
+    #supply-canvas {
+        position: fixed;
+        top: 0; left: 0;
         width: 100%; height: 100%;
-        background-image:
-            linear-gradient(rgba(14,165,233,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(14,165,233,0.03) 1px, transparent 1px);
-        background-size: 50px 50px;
-        z-index: 0; pointer-events: none;
+        z-index: 0;
+        pointer-events: none;
     }
 
-    /* Glow orbs */
-    .orb1 {
-        position: fixed; width: 500px; height: 500px;
-        border-radius: 50%; pointer-events: none; z-index: 0;
-        background: radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 70%);
-        top: -150px; left: -150px;
-        animation: orb-pulse 8s ease-in-out infinite;
+    .brand {
+        text-align: center;
+        padding: 2.5rem 0 2rem;
+        position: relative; z-index: 10;
     }
-    .orb2 {
-        position: fixed; width: 400px; height: 400px;
-        border-radius: 50%; pointer-events: none; z-index: 0;
-        background: radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%);
-        bottom: -100px; right: -100px;
-        animation: orb-pulse 10s ease-in-out infinite reverse;
+    .brand-tag {
+        font-size: 0.6rem; font-weight: 600;
+        letter-spacing: 4px; text-transform: uppercase;
+        color: #0ea5e9; margin-bottom: 0.75rem;
     }
-    @keyframes orb-pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.2); }
+    .brand-name {
+        font-size: 2.4rem; font-weight: 700;
+        color: #f1f5f9; letter-spacing: -1.5px; line-height: 1;
     }
-
-    /* Horizontal scan line */
-    .scan {
-        position: fixed; left: 0; width: 100%; height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(14,165,233,0.5) 50%, transparent 100%);
-        z-index: 1; pointer-events: none;
-        animation: scan-move 8s linear infinite;
-    }
-    @keyframes scan-move {
-        0% { top: 0%; opacity: 0; }
-        2% { opacity: 1; }
-        98% { opacity: 1; }
-        100% { top: 100%; opacity: 0; }
+    .brand-name b { color: #0ea5e9; }
+    .brand-desc {
+        font-size: 0.75rem; color: #1e3a5f;
+        margin-top: 0.5rem; letter-spacing: 0.5px;
     }
 
-    /* Vertical progress bars - left side */
-    .v-bars {
-        position: fixed; left: 24px; top: 50%;
-        transform: translateY(-50%);
-        display: flex; gap: 4px; z-index: 2; pointer-events: none;
-    }
-    .v-bar {
-        width: 2px; background: rgba(14,165,233,0.15);
-        border-radius: 2px; position: relative; overflow: hidden;
-    }
-    .v-bar::after {
-        content: '';
-        position: absolute; left: 0; bottom: 0; width: 100%;
-        background: #0ea5e9;
-        border-radius: 2px;
-        animation: fill-bar linear infinite;
-    }
-    .v-bar:nth-child(1) { height: 60px; } .v-bar:nth-child(1)::after { animation-duration: 2.1s; }
-    .v-bar:nth-child(2) { height: 80px; } .v-bar:nth-child(2)::after { animation-duration: 3.4s; }
-    .v-bar:nth-child(3) { height: 45px; } .v-bar:nth-child(3)::after { animation-duration: 2.7s; }
-    .v-bar:nth-child(4) { height: 70px; } .v-bar:nth-child(4)::after { animation-duration: 4.0s; }
-    .v-bar:nth-child(5) { height: 55px; } .v-bar:nth-child(5)::after { animation-duration: 1.8s; }
-    @keyframes fill-bar {
-        0% { height: 0%; opacity: 0.4; }
-        50% { height: 100%; opacity: 1; }
-        100% { height: 0%; opacity: 0.4; }
-    }
-
-    /* Right side node graph */
-    .nodes {
-        position: fixed; right: 32px; top: 50%;
-        transform: translateY(-50%);
-        z-index: 2; pointer-events: none;
-    }
-    .node {
-        width: 6px; height: 6px; border-radius: 50%;
-        background: #0ea5e9; margin: 12px auto;
-        box-shadow: 0 0 8px rgba(14,165,233,0.6);
-        animation: node-pulse 2s ease-in-out infinite;
-        position: relative;
-    }
-    .node::before {
-        content: '';
-        position: absolute; left: 50%; top: 100%;
-        transform: translateX(-50%);
-        width: 1px; height: 12px;
-        background: linear-gradient(180deg, rgba(14,165,233,0.4), transparent);
-    }
-    .node:nth-child(2) { animation-delay: 0.4s; background: #6366f1; box-shadow: 0 0 8px rgba(99,102,241,0.6); }
-    .node:nth-child(3) { animation-delay: 0.8s; }
-    .node:nth-child(4) { animation-delay: 1.2s; background: #6366f1; box-shadow: 0 0 8px rgba(99,102,241,0.6); }
-    .node:nth-child(5) { animation-delay: 1.6s; }
-    @keyframes node-pulse {
-        0%, 100% { transform: scale(1); opacity: 0.5; }
-        50% { transform: scale(1.6); opacity: 1; }
-    }
-
-    /* Brand */
-    .brand { text-align: center; padding: 2.5rem 0 2rem; position: relative; z-index: 10; }
-    .brand-tag { font-size: 0.6rem; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: #0ea5e9; margin-bottom: 0.75rem; }
-    .brand-name { font-size: 2.4rem; font-weight: 700; color: #f1f5f9; letter-spacing: -1.5px; line-height: 1; }
-    .brand-name b { color: #0ea5e9; font-weight: 700; }
-    .brand-desc { font-size: 0.75rem; color: #334155; margin-top: 0.5rem; letter-spacing: 0.5px; }
-
-    /* Card */
     .card {
-        background: rgba(10, 20, 38, 0.9);
-        backdrop-filter: blur(24px);
-        border: 1px solid rgba(14,165,233,0.1);
+        background: rgba(5, 10, 20, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(14,165,233,0.12);
         border-radius: 10px;
         padding: 1.75rem 1.75rem 1.25rem;
-        box-shadow: 0 0 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+        box-shadow: 0 0 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.03);
         position: relative; z-index: 10;
     }
     .card-title {
@@ -163,15 +82,13 @@ def login_page():
         width: 16px; height: 1px; background: #0ea5e9;
     }
     .card-title::after {
-        content: ''; display: inline-block;
-        flex: 1; height: 1px;
+        content: ''; flex: 1; height: 1px;
         background: linear-gradient(90deg, #1e3a5f, transparent);
     }
 
-    /* Stats */
     .stats {
         display: grid; grid-template-columns: repeat(4, 1fr);
-        gap: 0; margin-top: 1.25rem;
+        margin-top: 1.25rem;
         border: 1px solid rgba(14,165,233,0.08);
         border-radius: 6px; overflow: hidden;
     }
@@ -180,17 +97,16 @@ def login_page():
         border-right: 1px solid rgba(14,165,233,0.08);
     }
     .stat:last-child { border-right: none; }
-    .stat-v { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; font-variant-numeric: tabular-nums; }
+    .stat-v { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; }
     .stat-k { font-size: 0.55rem; color: #334155; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 1px; }
 
-    /* Footer */
     .card-footer {
         display: flex; justify-content: space-between;
         align-items: center; margin-top: 1rem;
         padding-top: 0.75rem;
         border-top: 1px solid rgba(14,165,233,0.06);
     }
-    .footer-l { font-size: 0.58rem; color: #1e3a5f; letter-spacing: 0.3px; }
+    .footer-l { font-size: 0.58rem; color: #1e3a5f; }
     .online { font-size: 0.58rem; color: #22c55e; display: flex; align-items: center; gap: 4px; }
     .online-dot {
         width: 5px; height: 5px; border-radius: 50%;
@@ -200,24 +116,127 @@ def login_page():
     @keyframes blink-dot { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
     </style>
 
-    <div class="grid-bg"></div>
-    <div class="orb1"></div>
-    <div class="orb2"></div>
-    <div class="scan"></div>
-    <div class="v-bars">
-        <div class="v-bar"></div>
-        <div class="v-bar"></div>
-        <div class="v-bar"></div>
-        <div class="v-bar"></div>
-        <div class="v-bar"></div>
-    </div>
-    <div class="nodes">
-        <div class="node"></div>
-        <div class="node"></div>
-        <div class="node"></div>
-        <div class="node"></div>
-        <div class="node"></div>
-    </div>
+    <canvas id="supply-canvas"></canvas>
+    <script>
+    const canvas = document.getElementById('supply-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Nodes representing factory/warehouse/delivery points
+    const nodes = [
+        {x: 0.1, y: 0.3, label: 'FACTORY'},
+        {x: 0.3, y: 0.6, label: 'WAREHOUSE'},
+        {x: 0.55, y: 0.2, label: 'QC'},
+        {x: 0.7, y: 0.7, label: 'DISPATCH'},
+        {x: 0.88, y: 0.4, label: 'DELIVERY'},
+        {x: 0.45, y: 0.8, label: 'LOGISTICS'},
+        {x: 0.2,  y: 0.85, label: 'PRODUCTION'},
+        {x: 0.78, y: 0.15, label: 'HUB'},
+    ].map(n => ({
+        x: n.x * canvas.width,
+        y: n.y * canvas.height,
+        label: n.label,
+        pulse: Math.random() * Math.PI * 2
+    }));
+
+    // Connections between nodes
+    const connections = [
+        [0,1],[1,3],[3,4],[0,2],[2,4],[1,5],[5,3],[0,6],[6,1],[2,7],[7,4]
+    ];
+
+    // Packets moving along connections
+    const packets = connections.map(([a,b]) => ({
+        from: a, to: b,
+        progress: Math.random(),
+        speed: 0.002 + Math.random() * 0.003,
+        active: Math.random() > 0.3
+    }));
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw connections
+        connections.forEach(([a, b]) => {
+            const n1 = nodes[a], n2 = nodes[b];
+            const grad = ctx.createLinearGradient(n1.x, n1.y, n2.x, n2.y);
+            grad.addColorStop(0, 'rgba(14,165,233,0.08)');
+            grad.addColorStop(0.5, 'rgba(14,165,233,0.15)');
+            grad.addColorStop(1, 'rgba(14,165,233,0.08)');
+            ctx.beginPath();
+            ctx.moveTo(n1.x, n1.y);
+            ctx.lineTo(n2.x, n2.y);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        });
+
+        // Draw packets
+        packets.forEach(p => {
+            if (!p.active) return;
+            const n1 = nodes[p.from], n2 = nodes[p.to];
+            const x = n1.x + (n2.x - n1.x) * p.progress;
+            const y = n1.y + (n2.y - n1.y) * p.progress;
+
+            // Glow
+            const grd = ctx.createRadialGradient(x, y, 0, x, y, 8);
+            grd.addColorStop(0, 'rgba(14,165,233,0.9)');
+            grd.addColorStop(1, 'rgba(14,165,233,0)');
+            ctx.beginPath();
+            ctx.arc(x, y, 8, 0, Math.PI * 2);
+            ctx.fillStyle = grd;
+            ctx.fill();
+
+            // Core dot
+            ctx.beginPath();
+            ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#0ea5e9';
+            ctx.fill();
+
+            p.progress += p.speed;
+            if (p.progress >= 1) p.progress = 0;
+        });
+
+        // Draw nodes
+        nodes.forEach((n, i) => {
+            n.pulse += 0.03;
+            const alpha = 0.4 + 0.3 * Math.sin(n.pulse);
+
+            // Outer ring
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, 10, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(14,165,233,${alpha * 0.4})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Inner dot
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(14,165,233,${alpha})`;
+            ctx.fill();
+
+            // Label
+            ctx.font = '500 9px Inter, sans-serif';
+            ctx.fillStyle = `rgba(14,165,233,${alpha * 0.6})`;
+            ctx.letterSpacing = '1px';
+            ctx.fillText(n.label, n.x + 14, n.y + 4);
+        });
+
+        requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        nodes.forEach(n => {
+            n.x = (n.x / canvas.width) * window.innerWidth;
+            n.y = (n.y / canvas.height) * window.innerHeight;
+        });
+    });
+
+    draw();
+    </script>
+
     <div class="brand">
         <div class="brand-tag">Production Intelligence</div>
         <div class="brand-name">Workforce<b>IQ</b></div>
@@ -254,7 +273,7 @@ def login_page():
         <div class="stats">
             <div class="stat"><div class="stat-v">1,197</div><div class="stat-k">Records</div></div>
             <div class="stat"><div class="stat-v">200</div><div class="stat-k">RF Trees</div></div>
-            <div class="stat"><div class="stat-v">0.52</div><div class="stat-k">R² Score</div></div>
+            <div class="stat"><div class="stat-v">0.52</div><div class="stat-k">R&sup2; Score</div></div>
             <div class="stat"><div class="stat-v">15</div><div class="stat-k">Features</div></div>
         </div>
         <div class="card-footer">
