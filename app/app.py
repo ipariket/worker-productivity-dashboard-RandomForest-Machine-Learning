@@ -287,6 +287,7 @@ if "authenticated" not in st.session_state:
     if _params.get("auth") == "1":
         users = get_users()
         uname = _params.get("u", "")
+        user = users.get(uname)
         if user:
             st.session_state["authenticated"] = True
             st.session_state["username"]      = uname
