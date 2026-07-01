@@ -20,7 +20,7 @@ st.set_page_config(
 )
 
 # ════════════════════════════════════════════════════════════
-# AUTH — reads from .streamlit/secrets.toml (never hardcoded)
+# AUTH — reads from st.secrets
 # ════════════════════════════════════════════════════════════
 
 def get_users():
@@ -51,20 +51,37 @@ def login_page():
         st.markdown('<div class="login-sub">Supervisor Portal — CSC-492 Senior Design</div>', unsafe_allow_html=True)
         st.divider()
 
-        username = st.text_input("Username", placeholder="Enter your username", key="login_user")
-        password = st.text_input("Password", type="password", placeholder="Enter your password", key="login_pass")
+        users = get_users()
+
+        # Build dropdown options: "Name (Role)" -> username key
+        user_options = {
+            f"{info['name']} ({info['role']})": key
+            for key, info in users.items()
+        }
+        selected_label = st.selectbox(
+            "Select User",
+            options=list(user_options.keys()),
+            index=0,
+            key="login_select"
+        )
+        selected_username = user_options[selected_label]
+
+        password = st.text_input(
+            "Password", type="password",
+            placeholder="Enter your password",
+            key="login_pass"
+        )
 
         if st.button("Sign In", type="primary", use_container_width=True):
-            users = get_users()
-            user = users.get(username.strip())
+            user = users.get(selected_username)
             if user and user["password"] == password:
                 st.session_state["authenticated"] = True
-                st.session_state["username"]      = username.strip()
+                st.session_state["username"]      = selected_username
                 st.session_state["display_name"]  = user["name"]
                 st.session_state["role"]          = user["role"]
                 st.rerun()
             else:
-                st.error("Invalid username or password. Please try again.")
+                st.error("Incorrect password. Please try again.")
 
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
