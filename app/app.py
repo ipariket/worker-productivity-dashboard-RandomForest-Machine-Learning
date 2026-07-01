@@ -264,10 +264,10 @@ def login_page():
         </div>
         ''', unsafe_allow_html=True)
 if "authenticated" not in st.session_state:
-    if params.get("auth") == "1":
+    _params = st.query_params
+    if _params.get("auth") == "1":
         users = get_users()
-        uname = params.get("u", "")
-        user = users.get(uname)
+        uname = _params.get("u", "")
         if user:
             st.session_state["authenticated"] = True
             st.session_state["username"]      = uname
