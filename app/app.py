@@ -295,7 +295,7 @@ def render_result(pred, lower, upper, raw, threshold,
         fig_heat = px.imshow(
             heat_df,
             labels=dict(x="Incentive (BDT)", y="Day", color="Predicted Productivity"),
-            color_continuous_scale="RdYlGn",
+            color_continuous_scale="Blues",
             zmin=0, zmax=1,
             text_auto=".2f",
             aspect="auto"
@@ -733,6 +733,38 @@ with tab3:
                                          shift_row.get('incentive', 0),
                                          w_model, w_overtime, w_incentive)
                 st.metric("Composite Manager Score", f"{comp_b:.1%}")
+
+                st.markdown("**Prediction Heatmap — Day vs Incentive**")
+                st.caption("How productivity changes across days and incentive levels for this shift.")
+                days = ["Monday","Tuesday","Wednesday","Thursday","Saturday","Sunday"]
+                incentive_range = [0, 25, 50, 75, 100, 125]
+                heat_data = []
+                for d in days:
+                    row_vals = []
+                    for inc in incentive_range:
+                        test_raw = {col: shift_row[col] for col in REQUIRED_BATCH_COLS}
+                        test_raw["day"] = d
+                        test_raw["incentive"] = inc
+                        fv = build_feature_vector(test_raw)
+                        p = float(np.clip(model.predict(fv)[0], 0, 1))
+                        row_vals.append(round(p, 3))
+                    heat_data.append(row_vals)
+                heat_df = pd.DataFrame(heat_data, index=days, columns=[f"BDT {i}" for i in incentive_range])
+                fig_heat = px.imshow(
+                    heat_df,
+                    labels=dict(x="Incentive (BDT)", y="Day", color="Predicted Productivity"),
+                    color_continuous_scale="Blues",
+                    zmin=0, zmax=1,
+                    text_auto=".2f",
+                    aspect="auto"
+                )
+                fig_heat.update_layout(
+                    height=350,
+                    margin=dict(l=10,r=10,t=30,b=10),
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    font=dict(size=12)
+                )
+                st.plotly_chart(fig_heat, use_container_width=True, key=f"batch_heatmap_{idx}")
 
         def highlight_risk(row):
             if row.get('Status') == "At Risk":
