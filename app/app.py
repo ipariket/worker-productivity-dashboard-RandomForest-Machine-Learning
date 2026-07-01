@@ -30,285 +30,204 @@ def login_page():
     st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+    .stApp { background: #050d1a; }
 
-    .stApp {
-        background: #060b18;
-    }
-
-    /* Animated grid background */
+    /* Grid */
     .grid-bg {
-        position: fixed;
-        top: 0; left: 0;
+        position: fixed; top: 0; left: 0;
         width: 100%; height: 100%;
         background-image:
-            linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px);
-        background-size: 40px 40px;
-        z-index: 0;
-        pointer-events: none;
+            linear-gradient(rgba(14,165,233,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(14,165,233,0.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+        z-index: 0; pointer-events: none;
     }
 
-    /* Glowing orbs */
-    .orb {
-        position: fixed;
-        border-radius: 50%;
-        filter: blur(80px);
-        pointer-events: none;
-        z-index: 0;
+    /* Glow orbs */
+    .orb1 {
+        position: fixed; width: 500px; height: 500px;
+        border-radius: 50%; pointer-events: none; z-index: 0;
+        background: radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 70%);
+        top: -150px; left: -150px;
+        animation: orb-pulse 8s ease-in-out infinite;
+    }
+    .orb2 {
+        position: fixed; width: 400px; height: 400px;
+        border-radius: 50%; pointer-events: none; z-index: 0;
+        background: radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%);
+        bottom: -100px; right: -100px;
+        animation: orb-pulse 10s ease-in-out infinite reverse;
+    }
+    @keyframes orb-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
     }
 
-    .orb-1 {
-        width: 400px; height: 400px;
-        background: rgba(14, 165, 233, 0.07);
-        top: -100px; left: -100px;
-        animation: pulse 6s ease-in-out infinite;
+    /* Horizontal scan line */
+    .scan {
+        position: fixed; left: 0; width: 100%; height: 1px;
+        background: linear-gradient(90deg, transparent 0%, rgba(14,165,233,0.5) 50%, transparent 100%);
+        z-index: 1; pointer-events: none;
+        animation: scan-move 8s linear infinite;
+    }
+    @keyframes scan-move {
+        0% { top: 0%; opacity: 0; }
+        2% { opacity: 1; }
+        98% { opacity: 1; }
+        100% { top: 100%; opacity: 0; }
     }
 
-    .orb-2 {
-        width: 300px; height: 300px;
-        background: rgba(99, 102, 241, 0.06);
-        bottom: -80px; right: -80px;
-        animation: pulse 8s ease-in-out infinite reverse;
-    }
-
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); opacity: 0.6; }
-        50% { transform: scale(1.15); opacity: 1; }
-    }
-
-    /* Scanning line animation */
-    .scan-line {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, rgba(14,165,233,0.4), transparent);
-        animation: scan 6s linear infinite;
-        z-index: 1;
-        pointer-events: none;
-    }
-
-    @keyframes scan {
-        0% { top: 0; opacity: 0; }
-        5% { opacity: 1; }
-        95% { opacity: 1; }
-        100% { top: 100vh; opacity: 0; }
-    }
-
-    /* Moving dots on left side */
-    .pipeline {
-        position: fixed;
-        left: 32px;
-        top: 50%;
+    /* Vertical progress bars - left side */
+    .v-bars {
+        position: fixed; left: 24px; top: 50%;
         transform: translateY(-50%);
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        z-index: 2;
-        pointer-events: none;
+        display: flex; gap: 4px; z-index: 2; pointer-events: none;
     }
-
-    .pipe-dot {
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
-        background: #0ea5e9;
-        animation: blink 2s ease-in-out infinite;
+    .v-bar {
+        width: 2px; background: rgba(14,165,233,0.15);
+        border-radius: 2px; position: relative; overflow: hidden;
     }
-
-    .pipe-dot:nth-child(2) { animation-delay: 0.3s; background: #6366f1; }
-    .pipe-dot:nth-child(3) { animation-delay: 0.6s; }
-    .pipe-dot:nth-child(4) { animation-delay: 0.9s; background: #6366f1; }
-    .pipe-dot:nth-child(5) { animation-delay: 1.2s; }
-    .pipe-dot:nth-child(6) { animation-delay: 1.5s; background: #6366f1; }
-
-    @keyframes blink {
-        0%, 100% { opacity: 0.2; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.5); }
-    }
-
-    /* Data stream on right */
-    .data-stream {
-        position: fixed;
-        right: 40px;
-        top: 20%;
-        font-family: monospace;
-        font-size: 0.6rem;
-        color: rgba(14,165,233,0.25);
-        line-height: 1.8;
-        z-index: 2;
-        pointer-events: none;
-        animation: stream 3s ease-in-out infinite;
-    }
-
-    @keyframes stream {
-        0%, 100% { opacity: 0.4; }
-        50% { opacity: 0.8; }
-    }
-
-    .login-wrap {
-        position: relative;
-        z-index: 10;
-        padding-top: 3rem;
-    }
-
-    .brand-row {
-        text-align: center;
-        margin-bottom: 2.5rem;
-    }
-
-    .brand-eyebrow {
-        font-size: 0.65rem;
-        font-weight: 600;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        color: #0ea5e9;
-        margin-bottom: 0.6rem;
-    }
-
-    .brand-name {
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #f8fafc;
-        letter-spacing: -1px;
-        line-height: 1;
-    }
-
-    .brand-name span {
-        color: #0ea5e9;
-    }
-
-    .brand-sub {
-        font-size: 0.8rem;
-        color: #334155;
-        margin-top: 0.4rem;
-        letter-spacing: 0.3px;
-    }
-
-    .card {
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(30, 58, 95, 0.8);
-        border-radius: 12px;
-        padding: 2rem;
-        box-shadow:
-            0 0 0 1px rgba(14,165,233,0.05),
-            0 25px 50px rgba(0,0,0,0.5),
-            inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-
-    .card-label {
-        font-size: 0.65rem;
-        font-weight: 600;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        color: #475569;
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid rgba(30,58,95,0.5);
-    }
-
-    .metrics-strip {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 1.5rem;
-        padding: 0.75rem 1rem;
-        background: rgba(14,165,233,0.04);
-        border-radius: 8px;
-        border: 1px solid rgba(14,165,233,0.08);
-    }
-
-    .metric-item { text-align: center; }
-    .metric-val {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #cbd5e1;
-        font-variant-numeric: tabular-nums;
-    }
-    .metric-key {
-        font-size: 0.55rem;
-        color: #334155;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        margin-top: 1px;
-    }
-
-    .divider-line {
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(14,165,233,0.2), transparent);
-        margin: 1rem 0;
-    }
-
-    .footer-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 1rem;
-    }
-
-    .footer-left {
-        font-size: 0.6rem;
-        color: #1e3a5f;
-        letter-spacing: 0.3px;
-    }
-
-    .status-dot {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 0.6rem;
-        color: #22c55e;
-    }
-
-    .status-dot::before {
+    .v-bar::after {
         content: '';
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: #22c55e;
-        box-shadow: 0 0 6px #22c55e;
-        animation: blink 2s ease-in-out infinite;
+        position: absolute; left: 0; bottom: 0; width: 100%;
+        background: #0ea5e9;
+        border-radius: 2px;
+        animation: fill-bar linear infinite;
     }
+    .v-bar:nth-child(1) { height: 60px; } .v-bar:nth-child(1)::after { animation-duration: 2.1s; }
+    .v-bar:nth-child(2) { height: 80px; } .v-bar:nth-child(2)::after { animation-duration: 3.4s; }
+    .v-bar:nth-child(3) { height: 45px; } .v-bar:nth-child(3)::after { animation-duration: 2.7s; }
+    .v-bar:nth-child(4) { height: 70px; } .v-bar:nth-child(4)::after { animation-duration: 4.0s; }
+    .v-bar:nth-child(5) { height: 55px; } .v-bar:nth-child(5)::after { animation-duration: 1.8s; }
+    @keyframes fill-bar {
+        0% { height: 0%; opacity: 0.4; }
+        50% { height: 100%; opacity: 1; }
+        100% { height: 0%; opacity: 0.4; }
+    }
+
+    /* Right side node graph */
+    .nodes {
+        position: fixed; right: 32px; top: 50%;
+        transform: translateY(-50%);
+        z-index: 2; pointer-events: none;
+    }
+    .node {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: #0ea5e9; margin: 12px auto;
+        box-shadow: 0 0 8px rgba(14,165,233,0.6);
+        animation: node-pulse 2s ease-in-out infinite;
+        position: relative;
+    }
+    .node::before {
+        content: '';
+        position: absolute; left: 50%; top: 100%;
+        transform: translateX(-50%);
+        width: 1px; height: 12px;
+        background: linear-gradient(180deg, rgba(14,165,233,0.4), transparent);
+    }
+    .node:nth-child(2) { animation-delay: 0.4s; background: #6366f1; box-shadow: 0 0 8px rgba(99,102,241,0.6); }
+    .node:nth-child(3) { animation-delay: 0.8s; }
+    .node:nth-child(4) { animation-delay: 1.2s; background: #6366f1; box-shadow: 0 0 8px rgba(99,102,241,0.6); }
+    .node:nth-child(5) { animation-delay: 1.6s; }
+    @keyframes node-pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.6); opacity: 1; }
+    }
+
+    /* Brand */
+    .brand { text-align: center; padding: 2.5rem 0 2rem; position: relative; z-index: 10; }
+    .brand-tag { font-size: 0.6rem; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: #0ea5e9; margin-bottom: 0.75rem; }
+    .brand-name { font-size: 2.4rem; font-weight: 700; color: #f1f5f9; letter-spacing: -1.5px; line-height: 1; }
+    .brand-name b { color: #0ea5e9; font-weight: 700; }
+    .brand-desc { font-size: 0.75rem; color: #334155; margin-top: 0.5rem; letter-spacing: 0.5px; }
+
+    /* Card */
+    .card {
+        background: rgba(10, 20, 38, 0.9);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(14,165,233,0.1);
+        border-radius: 10px;
+        padding: 1.75rem 1.75rem 1.25rem;
+        box-shadow: 0 0 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+        position: relative; z-index: 10;
+    }
+    .card-title {
+        font-size: 0.6rem; font-weight: 600;
+        letter-spacing: 2px; text-transform: uppercase;
+        color: #1e3a5f; margin-bottom: 1.25rem;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .card-title::before {
+        content: ''; display: inline-block;
+        width: 16px; height: 1px; background: #0ea5e9;
+    }
+    .card-title::after {
+        content: ''; display: inline-block;
+        flex: 1; height: 1px;
+        background: linear-gradient(90deg, #1e3a5f, transparent);
+    }
+
+    /* Stats */
+    .stats {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 0; margin-top: 1.25rem;
+        border: 1px solid rgba(14,165,233,0.08);
+        border-radius: 6px; overflow: hidden;
+    }
+    .stat {
+        padding: 0.6rem 0.5rem; text-align: center;
+        border-right: 1px solid rgba(14,165,233,0.08);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-v { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; font-variant-numeric: tabular-nums; }
+    .stat-k { font-size: 0.55rem; color: #334155; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 1px; }
+
+    /* Footer */
+    .card-footer {
+        display: flex; justify-content: space-between;
+        align-items: center; margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(14,165,233,0.06);
+    }
+    .footer-l { font-size: 0.58rem; color: #1e3a5f; letter-spacing: 0.3px; }
+    .online { font-size: 0.58rem; color: #22c55e; display: flex; align-items: center; gap: 4px; }
+    .online-dot {
+        width: 5px; height: 5px; border-radius: 50%;
+        background: #22c55e; box-shadow: 0 0 6px #22c55e;
+        animation: blink-dot 2s ease-in-out infinite;
+    }
+    @keyframes blink-dot { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
     </style>
 
     <div class="grid-bg"></div>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="scan-line"></div>
-
-    <div class="pipeline">
-        <div class="pipe-dot"></div>
-        <div class="pipe-dot"></div>
-        <div class="pipe-dot"></div>
-        <div class="pipe-dot"></div>
-        <div class="pipe-dot"></div>
-        <div class="pipe-dot"></div>
+    <div class="orb1"></div>
+    <div class="orb2"></div>
+    <div class="scan"></div>
+    <div class="v-bars">
+        <div class="v-bar"></div>
+        <div class="v-bar"></div>
+        <div class="v-bar"></div>
+        <div class="v-bar"></div>
+        <div class="v-bar"></div>
     </div>
-
-    <div class="data-stream">
-        SHIFT_01 · 0.76<br>
-        SHIFT_02 · 0.81<br>
-        SHIFT_03 · 0.69<br>
-        SHIFT_04 · 0.74<br>
-        SHIFT_05 · 0.88<br>
-        SHIFT_06 · 0.72<br>
-        SHIFT_07 · 0.79<br>
+    <div class="nodes">
+        <div class="node"></div>
+        <div class="node"></div>
+        <div class="node"></div>
+        <div class="node"></div>
+        <div class="node"></div>
     </div>
-
-    <div class="login-wrap">
-        <div class="brand-row">
-            <div class="brand-eyebrow">Production Intelligence</div>
-            <div class="brand-name">Workforce<span>IQ</span></div>
-            <div class="brand-sub">Garment Factory Productivity Platform</div>
-        </div>
+    <div class="brand">
+        <div class="brand-tag">Production Intelligence</div>
+        <div class="brand-name">Workforce<b>IQ</b></div>
+        <div class="brand-desc">Garment Factory Productivity Platform</div>
     </div>
     """, unsafe_allow_html=True)
 
     col_l, col_c, col_r = st.columns([1, 2, 1])
     with col_c:
-        st.markdown('<div class="card"><div class="card-label">Supervisor Sign In</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><div class="card-title">Supervisor Access</div>', unsafe_allow_html=True)
 
         users = get_users()
         ROLES = ["Floor Supervisor", "Senior Supervisor", "Admin"]
@@ -317,7 +236,7 @@ def login_page():
         password = st.text_input("", type="password", placeholder="Password", key="login_pass", label_visibility="collapsed")
         role_selected = st.selectbox("", ROLES, key="login_role", label_visibility="collapsed")
 
-        st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:0.3rem'></div>", unsafe_allow_html=True)
 
         if st.button("Sign In", type="primary", use_container_width=True):
             uname = username.strip()
@@ -332,22 +251,18 @@ def login_page():
                 st.error("Invalid credentials or role.")
 
         st.markdown('''
-        <div class="metrics-strip">
-            <div class="metric-item"><div class="metric-val">1,197</div><div class="metric-key">Shift Records</div></div>
-            <div class="metric-item"><div class="metric-val">200</div><div class="metric-key">RF Trees</div></div>
-            <div class="metric-item"><div class="metric-val">0.52</div><div class="metric-key">R² Score</div></div>
-            <div class="metric-item"><div class="metric-val">15</div><div class="metric-key">Features</div></div>
+        <div class="stats">
+            <div class="stat"><div class="stat-v">1,197</div><div class="stat-k">Records</div></div>
+            <div class="stat"><div class="stat-v">200</div><div class="stat-k">RF Trees</div></div>
+            <div class="stat"><div class="stat-v">0.52</div><div class="stat-k">R² Score</div></div>
+            <div class="stat"><div class="stat-v">15</div><div class="stat-k">Features</div></div>
         </div>
-        <div class="divider-line"></div>
-        <div class="footer-row">
-            <div class="footer-left">CSC-492 · CSUDH · Summer 2026</div>
-            <div class="status-dot">System Online</div>
+        <div class="card-footer">
+            <div class="footer-l">CSC-492 Senior Design &middot; CSUDH &middot; Summer 2026</div>
+            <div class="online"><div class="online-dot"></div>System Online</div>
         </div>
         </div>
         ''', unsafe_allow_html=True)
-
-# Restore session from query params on reload
-params = st.query_params
 if "authenticated" not in st.session_state:
     if params.get("auth") == "1":
         users = get_users()
