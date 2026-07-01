@@ -70,12 +70,30 @@ def login_page():
             else:
                 st.error("Invalid username, password, or role.")
 
+# Restore session from query params on reload
+params = st.query_params
 if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
+    if params.get("auth") == "1":
+        users = get_users()
+        uname = params.get("u", "")
+        user = users.get(uname)
+        if user:
+            st.session_state["authenticated"] = True
+            st.session_state["username"]      = uname
+            st.session_state["display_name"]  = user["name"]
+            st.session_state["role"]          = user["role"]
+        else:
+            st.session_state["authenticated"] = False
+    else:
+        st.session_state["authenticated"] = False
 
 if not st.session_state["authenticated"]:
     login_page()
     st.stop()
+
+# Persist login in query params
+st.query_params["auth"] = "1"
+st.query_params["u"] = st.session_state["username"]
 
 # ── Paths ────────────────────────────────────────────────────
 _HERE      = os.path.dirname(os.path.abspath(__file__))
@@ -324,6 +342,7 @@ with st.sidebar:
     if st.button("Sign Out", use_container_width=True):
         for key in ["authenticated","username","display_name","role"]:
             st.session_state.pop(key, None)
+        st.query_params.clear()
         st.rerun()
 
     st.divider()
