@@ -29,45 +29,286 @@ def get_users():
 def login_page():
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-    .stApp { background: #0a0f1e; }
-    .login-header { text-align: center; padding: 2rem 0 1rem 0; }
-    .login-icon { font-size: 3rem; margin-bottom: 0.5rem; }
-    .login-title { font-size: 1.8rem; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
-    .login-sub { color: #64748B; font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase; }
-    .login-badge { display: inline-block; background: linear-gradient(90deg, #1e40af, #0ea5e9); color: white; font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1.5rem; }
-    .card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid #1e3a5f; border-radius: 16px; padding: 2rem 2rem 1.5rem 2rem; box-shadow: 0 0 40px rgba(14,165,233,0.08), 0 20px 60px rgba(0,0,0,0.4); }
-    .stat-row { display: flex; justify-content: space-around; margin: 1.2rem 0 0.5rem 0; padding: 0.8rem; background: rgba(14,165,233,0.05); border-radius: 10px; border: 1px solid rgba(14,165,233,0.1); }
-    .stat-item { text-align: center; }
-    .stat-num { font-size: 1.2rem; font-weight: 700; color: #0ea5e9; }
-    .stat-label { font-size: 0.65rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
-    .truck-container { width: 100%; overflow: hidden; height: 36px; position: relative; margin: 0.5rem 0; }
-    .truck-track { position: absolute; bottom: 4px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, #1e3a5f, #0ea5e9, #1e3a5f, transparent); }
-    .truck { position: absolute; bottom: 5px; font-size: 1.4rem; animation: drive 4s linear infinite; filter: drop-shadow(0 0 6px rgba(14,165,233,0.6)); }
-    .package { position: absolute; bottom: 5px; font-size: 0.9rem; animation: drive 4s linear infinite; animation-delay: 2s; }
-    @keyframes drive { 0% { left: -60px; opacity: 0; } 5% { opacity: 1; } 95% { opacity: 1; } 100% { left: 110%; opacity: 0; } }
-    .dot { position: fixed; border-radius: 50%; background: rgba(14,165,233,0.15); animation: floatup linear infinite; pointer-events: none; z-index: 1; }
-    @keyframes floatup { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100px) scale(1); opacity: 0; } }
-    .footer-text { text-align: center; color: #334155; font-size: 0.7rem; margin-top: 1rem; }
+
+    .stApp {
+        background: #060b18;
+    }
+
+    /* Animated grid background */
+    .grid-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-image:
+            linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px);
+        background-size: 40px 40px;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    /* Glowing orbs */
+    .orb {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .orb-1 {
+        width: 400px; height: 400px;
+        background: rgba(14, 165, 233, 0.07);
+        top: -100px; left: -100px;
+        animation: pulse 6s ease-in-out infinite;
+    }
+
+    .orb-2 {
+        width: 300px; height: 300px;
+        background: rgba(99, 102, 241, 0.06);
+        bottom: -80px; right: -80px;
+        animation: pulse 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    /* Scanning line animation */
+    .scan-line {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(14,165,233,0.4), transparent);
+        animation: scan 6s linear infinite;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    @keyframes scan {
+        0% { top: 0; opacity: 0; }
+        5% { opacity: 1; }
+        95% { opacity: 1; }
+        100% { top: 100vh; opacity: 0; }
+    }
+
+    /* Moving dots on left side */
+    .pipeline {
+        position: fixed;
+        left: 32px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .pipe-dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: #0ea5e9;
+        animation: blink 2s ease-in-out infinite;
+    }
+
+    .pipe-dot:nth-child(2) { animation-delay: 0.3s; background: #6366f1; }
+    .pipe-dot:nth-child(3) { animation-delay: 0.6s; }
+    .pipe-dot:nth-child(4) { animation-delay: 0.9s; background: #6366f1; }
+    .pipe-dot:nth-child(5) { animation-delay: 1.2s; }
+    .pipe-dot:nth-child(6) { animation-delay: 1.5s; background: #6366f1; }
+
+    @keyframes blink {
+        0%, 100% { opacity: 0.2; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.5); }
+    }
+
+    /* Data stream on right */
+    .data-stream {
+        position: fixed;
+        right: 40px;
+        top: 20%;
+        font-family: monospace;
+        font-size: 0.6rem;
+        color: rgba(14,165,233,0.25);
+        line-height: 1.8;
+        z-index: 2;
+        pointer-events: none;
+        animation: stream 3s ease-in-out infinite;
+    }
+
+    @keyframes stream {
+        0%, 100% { opacity: 0.4; }
+        50% { opacity: 0.8; }
+    }
+
+    .login-wrap {
+        position: relative;
+        z-index: 10;
+        padding-top: 3rem;
+    }
+
+    .brand-row {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .brand-eyebrow {
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #0ea5e9;
+        margin-bottom: 0.6rem;
+    }
+
+    .brand-name {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #f8fafc;
+        letter-spacing: -1px;
+        line-height: 1;
+    }
+
+    .brand-name span {
+        color: #0ea5e9;
+    }
+
+    .brand-sub {
+        font-size: 0.8rem;
+        color: #334155;
+        margin-top: 0.4rem;
+        letter-spacing: 0.3px;
+    }
+
+    .card {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(30, 58, 95, 0.8);
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow:
+            0 0 0 1px rgba(14,165,233,0.05),
+            0 25px 50px rgba(0,0,0,0.5),
+            inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .card-label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #475569;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(30,58,95,0.5);
+    }
+
+    .metrics-strip {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1.5rem;
+        padding: 0.75rem 1rem;
+        background: rgba(14,165,233,0.04);
+        border-radius: 8px;
+        border: 1px solid rgba(14,165,233,0.08);
+    }
+
+    .metric-item { text-align: center; }
+    .metric-val {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #cbd5e1;
+        font-variant-numeric: tabular-nums;
+    }
+    .metric-key {
+        font-size: 0.55rem;
+        color: #334155;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-top: 1px;
+    }
+
+    .divider-line {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(14,165,233,0.2), transparent);
+        margin: 1rem 0;
+    }
+
+    .footer-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+    }
+
+    .footer-left {
+        font-size: 0.6rem;
+        color: #1e3a5f;
+        letter-spacing: 0.3px;
+    }
+
+    .status-dot {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.6rem;
+        color: #22c55e;
+    }
+
+    .status-dot::before {
+        content: '';
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 6px #22c55e;
+        animation: blink 2s ease-in-out infinite;
+    }
     </style>
-    <div class="dot" style="width:6px;height:6px;left:10%;animation-duration:8s;animation-delay:0s;"></div>
-    <div class="dot" style="width:4px;height:4px;left:25%;animation-duration:12s;animation-delay:2s;"></div>
-    <div class="dot" style="width:8px;height:8px;left:40%;animation-duration:9s;animation-delay:1s;"></div>
-    <div class="dot" style="width:3px;height:3px;left:60%;animation-duration:11s;animation-delay:3s;"></div>
-    <div class="dot" style="width:5px;height:5px;left:75%;animation-duration:7s;animation-delay:0.5s;"></div>
-    <div class="dot" style="width:7px;height:7px;left:88%;animation-duration:10s;animation-delay:4s;"></div>
-    <div class="login-header">
-        <div class="login-icon">🏭</div>
-        <div class="login-title">WorkForce IQ</div>
-        <div class="login-sub">Garment Production Intelligence Platform</div><br>
-        <span class="login-badge">Supervisor Access Portal</span>
+
+    <div class="grid-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="scan-line"></div>
+
+    <div class="pipeline">
+        <div class="pipe-dot"></div>
+        <div class="pipe-dot"></div>
+        <div class="pipe-dot"></div>
+        <div class="pipe-dot"></div>
+        <div class="pipe-dot"></div>
+        <div class="pipe-dot"></div>
+    </div>
+
+    <div class="data-stream">
+        SHIFT_01 · 0.76<br>
+        SHIFT_02 · 0.81<br>
+        SHIFT_03 · 0.69<br>
+        SHIFT_04 · 0.74<br>
+        SHIFT_05 · 0.88<br>
+        SHIFT_06 · 0.72<br>
+        SHIFT_07 · 0.79<br>
+    </div>
+
+    <div class="login-wrap">
+        <div class="brand-row">
+            <div class="brand-eyebrow">Production Intelligence</div>
+            <div class="brand-name">Workforce<span>IQ</span></div>
+            <div class="brand-sub">Garment Factory Productivity Platform</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
     col_l, col_c, col_r = st.columns([1, 2, 1])
     with col_c:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown('<div class="card"><div class="card-label">Supervisor Sign In</div>', unsafe_allow_html=True)
 
         users = get_users()
         ROLES = ["Floor Supervisor", "Senior Supervisor", "Admin"]
@@ -76,7 +317,9 @@ def login_page():
         password = st.text_input("", type="password", placeholder="Password", key="login_pass", label_visibility="collapsed")
         role_selected = st.selectbox("", ROLES, key="login_role", label_visibility="collapsed")
 
-        if st.button("ACCESS DASHBOARD", type="primary", use_container_width=True):
+        st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)
+
+        if st.button("Sign In", type="primary", use_container_width=True):
             uname = username.strip()
             user = users.get(uname)
             if user and user["password"] == password and user["role"] == role_selected:
@@ -89,17 +332,17 @@ def login_page():
                 st.error("Invalid credentials or role.")
 
         st.markdown('''
-        <div class="stat-row">
-            <div class="stat-item"><div class="stat-num">1,197</div><div class="stat-label">Shift Records</div></div>
-            <div class="stat-item"><div class="stat-num">200</div><div class="stat-label">RF Trees</div></div>
-            <div class="stat-item"><div class="stat-num">0.52</div><div class="stat-label">R² Score</div></div>
+        <div class="metrics-strip">
+            <div class="metric-item"><div class="metric-val">1,197</div><div class="metric-key">Shift Records</div></div>
+            <div class="metric-item"><div class="metric-val">200</div><div class="metric-key">RF Trees</div></div>
+            <div class="metric-item"><div class="metric-val">0.52</div><div class="metric-key">R² Score</div></div>
+            <div class="metric-item"><div class="metric-val">15</div><div class="metric-key">Features</div></div>
         </div>
-        <div class="truck-container">
-            <div class="truck-track"></div>
-            <div class="truck">🚛</div>
-            <div class="package">📦</div>
+        <div class="divider-line"></div>
+        <div class="footer-row">
+            <div class="footer-left">CSC-492 · CSUDH · Summer 2026</div>
+            <div class="status-dot">System Online</div>
         </div>
-        <div class="footer-text">CSC-492 Senior Design · CSUDH · Summer 2026</div>
         </div>
         ''', unsafe_allow_html=True)
 
