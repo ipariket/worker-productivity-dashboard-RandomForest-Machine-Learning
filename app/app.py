@@ -52,36 +52,23 @@ def login_page():
         st.divider()
 
         users = get_users()
+        ROLES = ["Floor Supervisor", "Senior Supervisor", "Admin"]
 
-        # Build dropdown options: "Name (Role)" -> username key
-        user_options = {
-            f"{info['name']} ({info['role']})": key
-            for key, info in users.items()
-        }
-        selected_label = st.selectbox(
-            "Select User",
-            options=list(user_options.keys()),
-            index=0,
-            key="login_select"
-        )
-        selected_username = user_options[selected_label]
-
-        password = st.text_input(
-            "Password", type="password",
-            placeholder="Enter your password",
-            key="login_pass"
-        )
+        username = st.text_input("Username", placeholder="Enter your username", key="login_user")
+        password = st.text_input("Password", type="password", placeholder="Enter your password", key="login_pass")
+        role_selected = st.selectbox("Role", ROLES, key="login_role")
 
         if st.button("Sign In", type="primary", use_container_width=True):
-            user = users.get(selected_username)
-            if user and user["password"] == password:
+            uname = username.strip()
+            user = users.get(uname)
+            if user and user["password"] == password and user["role"] == role_selected:
                 st.session_state["authenticated"] = True
-                st.session_state["username"]      = selected_username
+                st.session_state["username"]      = uname
                 st.session_state["display_name"]  = user["name"]
                 st.session_state["role"]          = user["role"]
                 st.rerun()
             else:
-                st.error("Incorrect password. Please try again.")
+                st.error("Invalid username, password, or role.")
 
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
