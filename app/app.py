@@ -732,9 +732,25 @@ with tab4:
     )
 
     df = df_ref.copy()
-    df['department'] = df['department'].str.strip().str.lower()
-    dept_label_map = {'finishing': 'Finishing', 'sweing': 'Sewing'}
-    df['department'] = df['department'].map(dept_label_map).fillna(df['department'])
+
+    # Reconstruct department from one-hot columns
+    df['department'] = 'Finishing'
+    df.loc[df['department_sweing'] == 1, 'department'] = 'Sewing'
+
+    # Reconstruct day from one-hot columns (Monday is baseline)
+    day_cols = {'day_Tuesday': 'Tuesday', 'day_Wednesday': 'Wednesday', 'day_Thursday': 'Thursday', 'day_Saturday': 'Saturday', 'day_Sunday': 'Sunday'}
+    df['day'] = 'Monday'
+    for col, label in day_cols.items():
+        if col in df.columns:
+            df.loc[df[col] == 1, 'day'] = label
+
+    # Reconstruct quarter (Quarter1 is baseline)
+    quarter_cols = {'quarter_Quarter2': 'Quarter2', 'quarter_Quarter3': 'Quarter3', 'quarter_Quarter4': 'Quarter4', 'quarter_Quarter5': 'Quarter5'}
+    df['quarter'] = 'Quarter1'
+    for col, label in quarter_cols.items():
+        if col in df.columns:
+            df.loc[df[col] == 1, 'quarter'] = label
+
     prod_col = 'actual_productivity' if 'actual_productivity' in df.columns else 'targeted_productivity'
 
     st.markdown("### Productivity by Day & Department")
