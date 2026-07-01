@@ -11,4 +11,4 @@ data/raw/
 
 # OS
 .DS_Store
-Thumbs.db
+Thumbs.db.streamlit/secrets.toml
