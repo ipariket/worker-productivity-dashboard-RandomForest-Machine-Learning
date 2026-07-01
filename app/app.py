@@ -295,7 +295,7 @@ def render_result(pred, lower, upper, raw, threshold,
         fig_heat = px.imshow(
             heat_df,
             labels=dict(x="Incentive (BDT)", y="Day", color="Predicted Productivity"),
-            color_continuous_scale="Blues",
+            color_continuous_scale="Viridis",
             zmin=0, zmax=1,
             text_auto=".2f",
             aspect="auto"
@@ -753,7 +753,7 @@ with tab3:
                 fig_heat = px.imshow(
                     heat_df,
                     labels=dict(x="Incentive (BDT)", y="Day", color="Predicted Productivity"),
-                    color_continuous_scale="Blues",
+                    color_continuous_scale="Viridis",
                     zmin=0, zmax=1,
                     text_auto=".2f",
                     aspect="auto"
@@ -832,7 +832,7 @@ with tab4:
         fig_dd = px.imshow(
             pivot_day_dept,
             labels=dict(x="Department", y="Day", color="Avg Productivity"),
-            color_continuous_scale="Blues", aspect="auto", text_auto=".2f"
+            color_continuous_scale="Viridis", aspect="auto", text_auto=".2f"
         )
         fig_dd.update_layout(height=380, margin=dict(l=10,r=10,t=30,b=10),
                              paper_bgcolor='rgba(0,0,0,0)', font=dict(size=12))
