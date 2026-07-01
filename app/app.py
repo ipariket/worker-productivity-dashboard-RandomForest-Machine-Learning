@@ -29,36 +29,54 @@ def get_users():
 def login_page():
     st.markdown("""
     <style>
-    .login-title {
-        text-align: center;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #F1F5F9;
-        margin-bottom: 0.25rem;
-    }
-    .login-sub {
-        text-align: center;
-        color: #94A3B8;
-        font-size: 0.9rem;
-        margin-bottom: 1.5rem;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+    .stApp { background: #0a0f1e; }
+    .login-header { text-align: center; padding: 2rem 0 1rem 0; }
+    .login-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .login-title { font-size: 1.8rem; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
+    .login-sub { color: #64748B; font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase; }
+    .login-badge { display: inline-block; background: linear-gradient(90deg, #1e40af, #0ea5e9); color: white; font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1.5rem; }
+    .card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid #1e3a5f; border-radius: 16px; padding: 2rem 2rem 1.5rem 2rem; box-shadow: 0 0 40px rgba(14,165,233,0.08), 0 20px 60px rgba(0,0,0,0.4); }
+    .stat-row { display: flex; justify-content: space-around; margin: 1.2rem 0 0.5rem 0; padding: 0.8rem; background: rgba(14,165,233,0.05); border-radius: 10px; border: 1px solid rgba(14,165,233,0.1); }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 1.2rem; font-weight: 700; color: #0ea5e9; }
+    .stat-label { font-size: 0.65rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+    .truck-container { width: 100%; overflow: hidden; height: 36px; position: relative; margin: 0.5rem 0; }
+    .truck-track { position: absolute; bottom: 4px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, #1e3a5f, #0ea5e9, #1e3a5f, transparent); }
+    .truck { position: absolute; bottom: 5px; font-size: 1.4rem; animation: drive 4s linear infinite; filter: drop-shadow(0 0 6px rgba(14,165,233,0.6)); }
+    .package { position: absolute; bottom: 5px; font-size: 0.9rem; animation: drive 4s linear infinite; animation-delay: 2s; }
+    @keyframes drive { 0% { left: -60px; opacity: 0; } 5% { opacity: 1; } 95% { opacity: 1; } 100% { left: 110%; opacity: 0; } }
+    .dot { position: fixed; border-radius: 50%; background: rgba(14,165,233,0.15); animation: floatup linear infinite; pointer-events: none; z-index: 1; }
+    @keyframes floatup { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100px) scale(1); opacity: 0; } }
+    .footer-text { text-align: center; color: #334155; font-size: 0.7rem; margin-top: 1rem; }
     </style>
+    <div class="dot" style="width:6px;height:6px;left:10%;animation-duration:8s;animation-delay:0s;"></div>
+    <div class="dot" style="width:4px;height:4px;left:25%;animation-duration:12s;animation-delay:2s;"></div>
+    <div class="dot" style="width:8px;height:8px;left:40%;animation-duration:9s;animation-delay:1s;"></div>
+    <div class="dot" style="width:3px;height:3px;left:60%;animation-duration:11s;animation-delay:3s;"></div>
+    <div class="dot" style="width:5px;height:5px;left:75%;animation-duration:7s;animation-delay:0.5s;"></div>
+    <div class="dot" style="width:7px;height:7px;left:88%;animation-duration:10s;animation-delay:4s;"></div>
+    <div class="login-header">
+        <div class="login-icon">🏭</div>
+        <div class="login-title">WorkForce IQ</div>
+        <div class="login-sub">Garment Production Intelligence Platform</div><br>
+        <span class="login-badge">Supervisor Access Portal</span>
+    </div>
     """, unsafe_allow_html=True)
 
     col_l, col_c, col_r = st.columns([1, 2, 1])
     with col_c:
-        st.markdown('<div class="login-title">Worker Productivity Dashboard</div>', unsafe_allow_html=True)
-        st.markdown('<div class="login-sub">Supervisor Portal — CSC-492 Senior Design</div>', unsafe_allow_html=True)
-        st.divider()
+        st.markdown('<div class="card">', unsafe_allow_html=True)
 
         users = get_users()
         ROLES = ["Floor Supervisor", "Senior Supervisor", "Admin"]
 
-        username = st.text_input("Username", placeholder="Enter your username", key="login_user")
-        password = st.text_input("Password", type="password", placeholder="Enter your password", key="login_pass")
-        role_selected = st.selectbox("Role", ROLES, key="login_role")
+        username = st.text_input("", placeholder="Username", key="login_user", label_visibility="collapsed")
+        password = st.text_input("", type="password", placeholder="Password", key="login_pass", label_visibility="collapsed")
+        role_selected = st.selectbox("", ROLES, key="login_role", label_visibility="collapsed")
 
-        if st.button("Sign In", type="primary", use_container_width=True):
+        if st.button("ACCESS DASHBOARD", type="primary", use_container_width=True):
             uname = username.strip()
             user = users.get(uname)
             if user and user["password"] == password and user["role"] == role_selected:
@@ -68,7 +86,22 @@ def login_page():
                 st.session_state["role"]          = user["role"]
                 st.rerun()
             else:
-                st.error("Invalid username, password, or role.")
+                st.error("Invalid credentials or role.")
+
+        st.markdown('''
+        <div class="stat-row">
+            <div class="stat-item"><div class="stat-num">1,197</div><div class="stat-label">Shift Records</div></div>
+            <div class="stat-item"><div class="stat-num">200</div><div class="stat-label">RF Trees</div></div>
+            <div class="stat-item"><div class="stat-num">0.52</div><div class="stat-label">R² Score</div></div>
+        </div>
+        <div class="truck-container">
+            <div class="truck-track"></div>
+            <div class="truck">🚛</div>
+            <div class="package">📦</div>
+        </div>
+        <div class="footer-text">CSC-492 Senior Design · CSUDH · Summer 2026</div>
+        </div>
+        ''', unsafe_allow_html=True)
 
 # Restore session from query params on reload
 params = st.query_params
