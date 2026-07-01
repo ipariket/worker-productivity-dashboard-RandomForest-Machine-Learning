@@ -276,6 +276,39 @@ def render_result(pred, lower, upper, raw, threshold,
         else:
             st.success("On or above target — no projected financial loss for this shift.")
 
+    with st.expander("Prediction Heatmap — Sensitivity Analysis", expanded=True):
+        st.caption("How predicted productivity changes as Day and Incentive vary, holding all other inputs fixed.")
+        days = ["Monday","Tuesday","Wednesday","Thursday","Saturday","Sunday"]
+        incentive_range = [0, 25, 50, 75, 100, 125]
+        heat_data = []
+        for d in days:
+            row_vals = []
+            for inc in incentive_range:
+                test_raw = dict(raw)
+                test_raw["day"] = d
+                test_raw["incentive"] = inc
+                fv = build_feature_vector(test_raw)
+                p = float(np.clip(model.predict(fv)[0], 0, 1))
+                row_vals.append(round(p, 3))
+            heat_data.append(row_vals)
+        heat_df = pd.DataFrame(heat_data, index=days, columns=[f"BDT {i}" for i in incentive_range])
+        fig_heat = px.imshow(
+            heat_df,
+            labels=dict(x="Incentive (BDT)", y="Day", color="Predicted Productivity"),
+            color_continuous_scale="RdYlGn",
+            zmin=0, zmax=1,
+            text_auto=".2f",
+            aspect="auto"
+        )
+        fig_heat.update_layout(
+            height=350,
+            margin=dict(l=10,r=10,t=30,b=10),
+            paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(size=12)
+        )
+        st.plotly_chart(fig_heat, use_container_width=True, key=f"{kp}_heatmap")
+        st.caption("_All other inputs (team size, overtime, WIP, etc.) are held at your entered values._")
+
     with st.expander("Why This Score? — Feature Importance Breakdown", expanded=False):
         st.caption(
             "Global feature importance from the trained Random Forest "
